@@ -1,0 +1,4 @@
+filelist	# file that contains list of original data files
+1		# Are there DD counts? (0=no, 1=yes)
+1		# Are there DR counts? (0=no, 1=yes)
+1		# Are there RR counts? (0=no, 1=yes)

@@ -1,0 +1,9 @@
+filelist	# File that contains list of data files
+1		# Get DD counts? 1=yes,0=no
+1		# Get DR counts? 1=yes,0=no
+1		# Get RR counts? 1=yes,0=no
+10		# Work level in tree
+30		# Number of bins
+0.01		# Minimum angle in degrees
+10.0		# Maximum angle in degrees
+0		# Angular or Spatial? 0=angular, 1=spatial

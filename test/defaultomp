@@ -1,0 +1,84 @@
+#!/bin/tcsh
+#  Sample Batch Script for a MVAPICH-Intel job
+#
+# $HOME/.soft contains:
+#
+#  +mvapich2-0.9.8p2patched-intel-ofed-1.2
+#  @teragrid-basic
+#  @globus-4.0
+#  @teragrid-dev
+#
+# $HOME/.mpd.conf contains:
+#
+#  MPD_SECRETWORD=XXXXXXX     # random alphanumeric chars
+#                             # (MUST contain at least one alphabetic char)
+#
+# (make sure the file .mpd.conf has permissions 700)
+#
+#  Submit this script using the command: qsub <script_name>
+#
+#  Use the "qstat" command to check the status of a job.
+#
+# The following are embedded QSUB options. The syntax is #PBS (the # does
+# _not_  denote that the lines are commented out so do not remove).
+#
+# walltime : maximum wall clock time (hh:mm:ss)
+#PBS -l walltime=00:04:00
+#
+# nodes: number of 8-core nodes
+#   ppn: how many cores per node to use (1 through 8)
+#       (you are always charged for the entire node)
+#PBS -l nodes=1:ppn=1
+#
+#PBS -q debug
+#
+# export all my environment variables to the job
+#PBS -V
+#
+# job name (default = name of script file)
+#PBS -N testjob
+#
+#
+# filename for standard output (default = <job_name>.o<job_id>)
+# at end of job, it is in directory from which qsub was executed
+# remove extra ## from the line below if you want to name your own file
+###PBS -o testjob.out
+#
+# filename for standard error (default = <job_name>.e<job_id>)
+# at end of job, it is in directory from which qsub was executed
+# remove extra ## from the line below if you want to name your own file
+###PBS -e testjob.err
+#
+# End of embedded QSUB options
+#
+# set echo               # echo commands before execution; use for debugging
+#
+
+cp ${HOME}/CorrCode/test/*.bin ${SCR}/
+cp ${HOME}/CorrCode/test/*.tree ${SCR}/
+cp ${HOME}/CorrCode/test/correlate ${SCR}/
+cp ${HOME}/CorrCode/test/aparams.in ${SCR}/
+cp ${HOME}/CorrCode/test/afilelist ${SCR}/
+cd $SCR                # change to job scratch directory , cdjob <jobid>
+
+
+#                        #   will put an interactive shell in this dir. after
+#                        #   the job has started
+
+mvapich2-start-mpd
+setenv NP `wc -l ${PBS_NODEFILE} | cut -d'/' -f1`
+
+setenv MV2_SRQ_SIZE 4000
+echo ${NP}
+./correlate aparams.in
+# mpirun -np ${NP} correlate aparams.in
+
+cp *bins ${HOME}/CorrCode/test/
+
+# The mpirun syntax above will asign ranks to nodes in round-robin fashion,
+# to get ranks *packed* into nodes , use this syntax:
+#  mpirun  -machinefile ${PBS_NODEFILE} -np ${NP} ${HOME}/a.out
+
+# msscmd "put file.output"     # save output with msscmd 
+mpdallexit
+
